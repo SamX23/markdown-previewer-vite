@@ -1,30 +1,48 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { marked } from "marked";
+import Prism from "prismjs";
+import placeholder from "./data";
 import "./App.css";
 
 function App() {
-  const [preview, setPreview] = useState(
-    "a heading element (H1 size), a sub heading element (H2 size), a link, inline code, a cod"
-  );
+  const [preview, setPreview] = useState(placeholder);
 
-  const onChangeListener = (e) => {
-    const value = e.currentTarget.value;
-    const html = marked.parse(value);
+  marked.setOptions({
+    breaks: true,
+    highlight: function (code) {
+      return Prism.highlight(code, Prism.languages.javascript, "javascript");
+    },
+  });
 
-    setPreview(html);
-  };
+  const onChangeListener = ({ currentTarget }) =>
+    setPreview(currentTarget.value);
+
+  const renderer = new marked.Renderer();
 
   return (
-    <>
-      <textarea
-        onChange={onChangeListener}
-        name="editor"
-        id="editor"
-        cols="30"
-        rows="10"
-      ></textarea>
-      <div id="preview">{preview}</div>
-    </>
+    <main>
+      <div className="container">
+        <h2>Insert Text</h2>
+        <textarea
+          onChange={onChangeListener}
+          value={preview}
+          name="editor"
+          id="editor"
+          rows="10"
+          type="text"
+        ></textarea>
+      </div>
+
+      <div className="container">
+        <h2>Preview</h2>
+        <div
+          id="preview"
+          dangerouslySetInnerHTML={{
+            __html: marked(preview, { renderer: renderer }),
+          }}
+        />
+      </div>
+    </main>
   );
 }
 
